@@ -14,21 +14,11 @@ import (
 )
 
 func dbConn() (db *sql.DB) {
-	// dbDriver := "mysql"
-	// // dbUser := "bd64185d03cbcet"
-	// // dbPass := "08c17f4b"
-	// // dbName := "heroku_4438dd451a96a65"
-	// db, err := sql.Open(dbDriver, "bc536a91185fda:791fb1bb@tcp(us-cdbr-gcp-east-01.cleardb.net:3306)/gcp_74865c3e4a85c95dfa0c")
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	panic(err.Error())
-	// }
-	// return db
 	dbDriver := "mysql"
 	// dbUser := "root"
 	// dbPass := ""
 	// dbName := "habits"
-	db, err := sql.Open(dbDriver, "b0f1a606882b71:b5ed3ec0@tcp(us-cdbr-gcp-east-01.cleardb.net:3306)/gcp_74865c3e4a85c95dfa0c")
+	db, err := sql.Open(dbDriver, "b0f1a606882b71:b5ed3ec0@tcp(us-cdbr-gcp-east-01.cleardb.net:3306)/heroku_a061c2cf3a0095d")
 	if err != nil {
 		fmt.Println("KOOOOOOOOOL")
 		panic(err.Error())
@@ -78,9 +68,12 @@ type Habit struct {
 func main() {
 
 	db := dbConn()
-	statement, err := db.Prepare("CREATE TABLE IF NOT EXISTS users (id INTEGER AUTO_INCREMENT PRIMARY KEY, username TEXT, password TEXT, admin INTEGER, UNIQUE(username))")
+	statement, err := db.Prepare("CREATE TABLE IF NOT EXISTS bot-users (id INTEGER AUTO_INCREMENT PRIMARY KEY, username TEXT, password TEXT, admin INTEGER, UNIQUE(username))")
+	if err != nil {
+		fmt.Println(err)
+	}
 	statement.Exec()
-	statement, err = db.Prepare("CREATE TABLE IF NOT EXISTS habits (id INTEGER AUTO_INCREMENT PRIMARY KEY, habit TEXT, username TEXT, days INTEGER, daysDone INTEGER)")
+	statement, err = db.Prepare("CREATE TABLE IF NOT EXISTS bot-habits (id INTEGER AUTO_INCREMENT PRIMARY KEY, habit TEXT, username TEXT, days INTEGER, daysDone INTEGER)")
 	statement.Exec()
 	if err != nil {
 		fmt.Println(err)
@@ -121,7 +114,7 @@ func main() {
 				db := dbConn()
 				username := update.Message.From.UserName
 				fmt.Println("USERNAME: ", username)
-				statement, err := db.Prepare("INSERT INTO users (username, password, admin) VALUES (?, ?, ?)")
+				statement, err := db.Prepare("INSERT INTO bot-users (username, password, admin) VALUES (?, ?, ?)")
 				if err != nil {
 					fmt.Println(err)
 				}
@@ -134,7 +127,7 @@ func main() {
 				if len(habit) > 1 {
 					fmt.Println("HABIT: ", habit[1])
 					db := dbConn()
-					statement, err := db.Prepare("INSERT INTO habits (habit, username, days, daysDone) VALUES (?, ?, ?, ?)")
+					statement, err := db.Prepare("INSERT INTO bot-habits (habit, username, days, daysDone) VALUES (?, ?, ?, ?)")
 					if err != nil {
 						fmt.Println(err)
 					}
@@ -159,7 +152,7 @@ func main() {
 				// var daysDone int
 				// var days int
 				var habits []Habit
-				rows, err := db.Query("SELECT habit, days, daysDone FROM habits WHERE username = ?", username)
+				rows, err := db.Query("SELECT habit, days, daysDone FROM bot-habits WHERE username = ?", username)
 				if err == nil {
 					for rows.Next() {
 						h := Habit{}
@@ -195,10 +188,10 @@ func main() {
 				stmt := ""
 				txt := ""
 				if strings.Contains(update.Message.Text, "+") {
-					stmt = "UPDATE habits SET daysDone = daysDone + 1 WHERE username = ? AND habit = ?"
+					stmt = "UPDATE bot-habits SET daysDone = daysDone + 1 WHERE username = ? AND habit = ?"
 					txt = "Great, keep it up"
 				} else if strings.Contains(update.Message.Text, "-") {
-					stmt = "UPDATE habits SET daysDone = daysDone - 1 WHERE username = ? AND habit = ?"
+					stmt = "UPDATE bot-habits SET daysDone = daysDone - 1 WHERE username = ? AND habit = ?"
 					txt = "Ouch! What happened??"
 				}
 				statement, _ := db.Prepare(stmt)
