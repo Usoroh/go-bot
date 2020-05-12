@@ -25,10 +25,10 @@ func dbConn() (db *sql.DB) {
 	// }
 	// return db
 	dbDriver := "mysql"
-	dbUser := "root"
-	dbPass := ""
-	dbName := "habits"
-	db, err := sql.Open(dbDriver, dbUser+":"+dbPass+"@/"+dbName)
+	// dbUser := "root"
+	// dbPass := ""
+	// dbName := "habits"
+	db, err := sql.Open(dbDriver, "b0f1a606882b71:b5ed3ec0@tcp(us-cdbr-gcp-east-01.cleardb.net:3306)/gcp_74865c3e4a85c95dfa0c")
 	if err != nil {
 		fmt.Println("KOOOOOOOOOL")
 		panic(err.Error())
